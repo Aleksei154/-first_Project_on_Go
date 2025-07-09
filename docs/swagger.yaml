@@ -1,0 +1,87 @@
+definitions:
+  models.User:
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+info:
+  contact: { }
+  version:
+  title:
+paths:
+  /user:
+    delete:
+      description: Удаляет пользователя из базы данных по имени
+      parameters:
+      - description: Имя пользователя
+        in: query
+        name: username
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удаляет пользователя
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового пользователя в базу данных
+      parameters:
+      - description: Имя пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создает нового пользователя
+  /users:
+    get:
+      description: Возвращает массив пользователей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получает список всех пользователей
+swagger: "2.0"

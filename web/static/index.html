@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис работы с пользователями</title>
+    <style>
+        th {
+            padding: 10px; /* Отступ внутри ячеек заголовка */
+        }
+        th + th {
+            padding-left: 20px; /* Отступ между заголовками */
+        }
+    </style>
+    <script>
+        // Функция для создания нового пользователя
+        async function createUser() {
+            const username = document.getElementById("username").value; // Получаем имя пользователя из поля ввода
+            const response = await fetch("/user", {
+                method: "POST", // Указываем метод POST
+                headers: {
+                    "Content-Type": "application/json" // Указываем тип содержимого
+                },
+                body: JSON.stringify({ username }) // Отправляем имя пользователя в формате JSON
+            });
+
+            if (response.ok) {
+                alert("Пользователь успешно добавлен!"); // Уведомление об успешном добавлении
+                document.getElementById("username").value = ""; // Очищаем поле ввода
+                getUsers(); // Обновляем список пользователей после добавления
+            } else {
+                const error = await response.json(); // Получаем сообщение об ошибке
+                alert("Ошибка: " + error.error); // Уведомление об ошибке
+            }
+        }
+
+        // Функция для получения списка всех пользователей
+        async function getUsers() {
+            const response = await fetch("/users"); // Отправляем GET-запрос для получения пользователей
+            if (response.ok) {
+                const users = await response.json(); // Получаем список пользователей в формате JSON
+                const userTableBody = document.getElementById("userTableBody");
+                userTableBody.innerHTML = ""; // Очищаем предыдущий список
+                users.forEach(user => {
+                    const row = document.createElement("tr"); // Создаем новую строку таблицы
+                    const idCell = document.createElement("td"); // Ячейка для ID пользователя
+                    const usernameCell = document.createElement("td"); // Ячейка для имени пользователя
+
+                    idCell.textContent = user.id; // Заполняем ячейку ID
+                    usernameCell.textContent = user.username; // Заполняем ячейку имени пользователя
+
+                    row.appendChild(idCell); // Добавляем ячейку ID в строку
+                    row.appendChild(usernameCell); // Добавляем ячейку имени пользователя в строку
+                    userTableBody.appendChild(row); // Добавляем строку в тело таблицы
+                });
+            } else {
+                alert("Ошибка при получении пользователей."); // Уведомление об ошибке
+            }
+        }
+        // Функция для удаления пользователя
+        async function deleteUser(username) {
+            const del_username = document.getElementById("del_username").value; // Получаем имя пользователя из поля ввода
+            const response = await fetch(`/user?username=${del_username}`, {
+                method: "DELETE" // Указываем метод DELETE
+            });
+
+            if (response.ok) {
+                alert("Пользователь успешно удален!"); // Уведомление об успешном удалении
+                document.getElementById("del_username").value = ""; // Очищаем поле ввода
+                getUsers(); // Обновляем список пользователей после удаления
+            } else {
+                const error = await response.json(); // Получаем сообщение об ошибке
+                alert("Ошибка: " + error.error); // Уведомление об ошибке
+            }
+        }
+
+    </script>
+</head>
+<body>
+<h1>Сервис работы с пользователями</h1>
+<h2>Добавление пользователя</h2>
+<input type="text" id="username" placeholder="Введите имя пользователя" required> <!-- Поле ввода для имени пользователя -->
+<button onclick="createUser()">Записать в БД</button> <br><br><!-- Кнопка для добавления пользователя -->
+<input type="text" id="del_username" placeholder="Введите имя пользователя" required> <!-- Поле ввода для имени пользователя -->
+<button onclick="deleteUser()">Удалить из БД</button> <!-- Кнопка для добавления пользователя -->
+<h2>Получение списка пользователей</h2>
+<button onclick="getUsers()">Получить список пользователей</button><br><br><br> <!-- Кнопка для получения списка пользователей -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th> <!-- Заголовок для ID пользователя -->
+        <th>Имя пользователя</th> <!-- Заголовок для имени пользователя -->
+    </tr>
+    </thead>
+    <tbody id="userTableBody"> <!-- Тело таблицы, где будут отображаться пользователи -->
+    </tbody>
+</table>
+</body>
+</html>
